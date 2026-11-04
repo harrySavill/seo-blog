@@ -14,4 +14,11 @@ export default defineNuxtConfig({
       blogs: { driver: 'fs', base: './.data/blogs' },
     },
   },
+  css: ['~/assets/css/main.css'],
+  app: {
+    head: {
+      htmlAttrs: { lang: 'en-GB' },
+      titleTemplate: '%s',
+    },
+  },
 })
