@@ -6,6 +6,8 @@ export default defineNuxtConfig({
     geminiApiKey: '',
     geminiModel: 'gemini-3.8-flash',
     geminiFallbackModels: 'gemini-3.5-flash-lite,gemini-3.1-flash-lite',
+    supabaseUrl: '',
+    supabaseServiceKey: '',
   },
   nitro: {
     devStorage: {
