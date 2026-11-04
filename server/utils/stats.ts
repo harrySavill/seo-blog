@@ -66,6 +66,7 @@ export function computeStats(rows: Row[]) {
             top10Share: values.slice(0, 10).reduce((a, b) => a + b, 0) / total,
         }
     }
+    const metricTotal = metric?.total ?? 0
 
     // breakdowns for category and multi-value columns
     const breakdowns = columns
@@ -87,12 +88,26 @@ export function computeStats(rows: Row[]) {
                 }
             }
             const items = [...map.entries()]
-                .map(([label, v]) => ({ label, ...v }))
+                .map(([label, v]) => ({
+                    label,
+                    ...v,
+                    average: v.count ? Math.round(v.total / v.count) : null,
+                    share: metricTotal ? Math.round((v.total / metricTotal) * 100) : null,
+                }))
+                // drop near-universal values (e.g. "Application software" in 98 of 100 rows)
+                .filter(i => i.count / rows.length <= 0.9)
                 .sort((a, b) => b.count - a.count)
                 .slice(0, 10)
             return { column: c.name, kind: c.kind, items }
         })
         .filter(b => b.items.length > 1)
 
-    return { rowCount: rows.length, columns, labelColumn: labelCol?.name ?? null, metric, breakdowns }
+    // categorical columns where every row has the same value (e.g. Stage = Seed): kept as facts
+    const constants = columns
+        .filter(c => c.kind === 'category')
+        .map(c => ({ column: c.name, values: new Set(rows.map(r => r[c.name]).filter(Boolean)) }))
+        .filter(c => c.values.size === 1)
+        .map(c => ({ column: c.column, value: [...c.values][0] }))
+
+    return { rowCount: rows.length, columns, labelColumn: labelCol?.name ?? null, metric, breakdowns, constants }
 }
