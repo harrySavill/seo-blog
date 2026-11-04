@@ -10,8 +10,3 @@ export function parseCsv(text: string): Row[] {
     })
     return data
 }
-
-export async function loadFintech(): Promise<Row[]> {
-    const csv = await useStorage('assets:server').getItem('fintech.csv')
-    return parseCsv(String(csv))
-}
